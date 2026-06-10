@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Space Defender</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="overlay">
+      <h2
+        id="overlayTitle"
+        style="color: var(--cyan); text-shadow: 0 0 20px var(--cyan)"
+      >
+        SPACE DEFENDER
+      </h2>
+      <p id="overlayMsg">
+        Hancurkan semua alien sebelum mereka menyentuh bumi.
+      </p>
+      <div id="finalScore" class="big-score hidden">0</div>
+      <p
+        style="color: rgba(255, 255, 255, 0.4); font-size: 11px; margin-top: 4px"
+      >
+        ← → untuk bergerak &nbsp;|&nbsp; SPASI untuk tembak
+      </p>
+      <button id="startBtn">MULAI</button>
+    </div>
+
+    <div id="title">SPACE DEFENDER</div>
+    <div id="hud">
+      <div class="hud-item">
+        <span class="hud-label">SKOR</span
+        ><span class="hud-value" id="scoreVal">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">NYAWA</span
+        ><span class="hud-value" id="livesVal">♥♥♥</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">LEVEL</span
+        ><span class="hud-value" id="levelVal">1</span>
+      </div>
+    </div>
+    <canvas id="c"></canvas>
+    <div id="controls">
+      ← → bergerak &nbsp;|&nbsp; SPASI tembak &nbsp;|&nbsp; P pause
+    </div>
+
+    <div id="touch-controls">
+      <button class="t-btn" id="leftBtn">◀</button>
+      <button class="t-btn" id="fireBtn">FIRE</button>
+      <button class="t-btn" id="rightBtn">▶</button>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
