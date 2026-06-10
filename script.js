@@ -1,4 +1,4 @@
-//  Canvas setup 
+//  Canvas setup
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
@@ -33,17 +33,17 @@ function playLaserSound() {
   if (!audioCtx) return;
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
-  
+
   osc.type = "triangle";
   osc.frequency.setValueAtTime(900, audioCtx.currentTime);
   osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.12);
-  
+
   gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
-  
+
   osc.connect(gainNode);
   gainNode.connect(audioCtx.destination);
-  
+
   osc.start();
   osc.stop(audioCtx.currentTime + 0.12);
 }
@@ -52,17 +52,17 @@ function playExplosionSound() {
   if (!audioCtx) return;
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
-  
+
   osc.type = "sawtooth";
   osc.frequency.setValueAtTime(120, audioCtx.currentTime);
   osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.2);
-  
+
   gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-  
+
   osc.connect(gainNode);
   gainNode.connect(audioCtx.destination);
-  
+
   osc.start();
   osc.stop(audioCtx.currentTime + 0.2);
 }
@@ -71,17 +71,17 @@ function playHitSound() {
   if (!audioCtx) return;
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
-  
+
   osc.type = "square";
   osc.frequency.setValueAtTime(250, audioCtx.currentTime);
   osc.frequency.setValueAtTime(100, audioCtx.currentTime + 0.08);
-  
+
   gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-  
+
   osc.connect(gainNode);
   gainNode.connect(audioCtx.destination);
-  
+
   osc.start();
   osc.stop(audioCtx.currentTime + 0.2);
 }
@@ -91,31 +91,34 @@ function playGameOverSound() {
   const now = audioCtx.currentTime;
   const notes = [180, 150, 120, 90];
   const duration = 0.18;
-  
+
   notes.forEach((freq, index) => {
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
-    
+
     osc.type = "sawtooth";
     osc.frequency.setValueAtTime(freq, now + index * duration);
-    
+
     gainNode.gain.setValueAtTime(0.15, now + index * duration);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, now + index * duration + duration - 0.02);
-    
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      now + index * duration + duration - 0.02,
+    );
+
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
-    
+
     osc.start(now + index * duration);
     osc.stop(now + index * duration + duration);
   });
 }
 
-//  State 
+//  State
 let score, lives, level, running, paused, gameOverFlag, raf;
 let player, bullets, aliens, bombs, particles, stars;
 const keys = {};
 
-//  Constants 
+//  Constants
 const PLAYER_W = 36,
   PLAYER_H = 28;
 const BULLET_W = 3,
@@ -124,7 +127,7 @@ const BOMB_W = 4,
   BOMB_H = 10;
 const SHOOT_COOLDOWN = 220; // ms
 
-//  Init / reset 
+//  Init / reset
 function init() {
   score = 0;
   lives = 3;
@@ -154,14 +157,26 @@ function init() {
 
 function spawnWave() {
   aliens = [];
-  const cols = Math.min(8 + level, 14);
+  let cols = Math.min(8 + level, 14);
   const rows = Math.min(2 + Math.floor(level / 2), 5);
-  const sx = (W() - cols * 44) / 2;
+
+  // Calculate spacing so they always fit in W()
+  const maxAvailableWidth = W() - 32; // 16px padding on each side
+  let spacing = Math.min(44, maxAvailableWidth / cols);
+
+  // Recalculate cols if spacing becomes too small (less than alien width)
+  if (spacing < 30) {
+    cols = Math.max(2, Math.floor(maxAvailableWidth / 30));
+  }
+
+  const actualSpacing = Math.min(44, maxAvailableWidth / cols);
+  const sx = (W() - (cols - 1) * actualSpacing - 28) / 2; // center the grid
+
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const tier = r < 2 ? 0 : r < 4 ? 1 : 2;
       aliens.push({
-        x: sx + c * 44,
+        x: sx + c * actualSpacing,
         y: 28 + r * 38,
         w: 28,
         h: 22,
@@ -175,7 +190,7 @@ function spawnWave() {
   }
 }
 
-//  HUD 
+//  HUD
 function updateHUD() {
   document.getElementById("scoreVal").textContent = score;
   document.getElementById("livesVal").textContent =
@@ -183,7 +198,7 @@ function updateHUD() {
   document.getElementById("levelVal").textContent = level;
 }
 
-//  Particles 
+//  Particles
 function burst(x, y, color, n = 14) {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2;
@@ -201,7 +216,7 @@ function burst(x, y, color, n = 14) {
   }
 }
 
-//  Draw helpers 
+//  Draw helpers
 function drawBg() {
   ctx.fillStyle = "#050505";
   ctx.fillRect(0, 0, W(), H());
@@ -221,12 +236,12 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(p.x + PLAYER_W / 2, p.y + PLAYER_H / 2);
 
-  // engine glow
-  ctx.shadowColor = "#ffffff";
+  // engine glow (cyan/blue neon)
+  ctx.shadowColor = "#00f5ff";
   ctx.shadowBlur = 14;
 
-  // body
-  ctx.fillStyle = "#333333";
+  // body (dark metallic steel)
+  ctx.fillStyle = "#1e293b";
   ctx.beginPath();
   ctx.moveTo(0, -PLAYER_H / 2);
   ctx.lineTo(PLAYER_W / 2, PLAYER_H / 2);
@@ -234,14 +249,14 @@ function drawPlayer() {
   ctx.closePath();
   ctx.fill();
 
-  // cockpit
+  // cockpit (white)
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
   ctx.ellipse(0, -4, 7, 9, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // wings accent
-  ctx.strokeStyle = "#888888";
+  // wings accent (cyan neon outline)
+  ctx.strokeStyle = "#00f5ff";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(-PLAYER_W / 2, PLAYER_H / 2);
@@ -250,9 +265,9 @@ function drawPlayer() {
   ctx.lineTo(8, 2);
   ctx.stroke();
 
-  // thruster
+  // thruster (fire orange/red)
   if (Math.random() > 0.4) {
-    ctx.fillStyle = `rgba(${(200 + Math.random() * 55) | 0}, ${(200 + Math.random() * 55) | 0}, ${(200 + Math.random() * 55) | 0}, 0.9)`;
+    ctx.fillStyle = `rgba(255, ${(100 + Math.random() * 100) | 0}, 0, 0.9)`;
     ctx.beginPath();
     ctx.moveTo(-5, PLAYER_H / 2);
     ctx.lineTo(5, PLAYER_H / 2);
@@ -268,7 +283,7 @@ function drawPlayer() {
 const ALIEN_SHAPES = [
   (c, w, h) => {
     // tier 0 — squid
-    c.fillStyle = "#888888";
+    c.fillStyle = "#39ff14";
     c.beginPath();
     c.arc(0, -2, w * 0.38, 0, Math.PI * 2);
     c.fill();
@@ -281,7 +296,7 @@ const ALIEN_SHAPES = [
     c.arc(w * 0.16, -4, 3, 0, Math.PI * 2);
     c.fill();
     // tentacles
-    c.strokeStyle = "#888888";
+    c.strokeStyle = "#39ff14";
     c.lineWidth = 2;
     for (let t = -1; t <= 1; t += 1) {
       c.beginPath();
@@ -292,7 +307,7 @@ const ALIEN_SHAPES = [
   },
   (c, w, h) => {
     // tier 1 — crab
-    c.fillStyle = "#aaaaaa";
+    c.fillStyle = "#00ff66";
     c.fillRect(-w * 0.4, -h * 0.3, w * 0.8, h * 0.6);
     c.fillStyle = "#ffffff";
     c.beginPath();
@@ -301,7 +316,7 @@ const ALIEN_SHAPES = [
     c.beginPath();
     c.arc(w * 0.4, -h * 0.1, 5, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = "#cccccc";
+    c.fillStyle = "#ffffff";
     c.beginPath();
     c.arc(-w * 0.2, -h * 0.1, 3, 0, Math.PI * 2);
     c.fill();
@@ -311,7 +326,7 @@ const ALIEN_SHAPES = [
   },
   (c, w, h) => {
     // tier 2 — UFO
-    c.fillStyle = "#dddddd";
+    c.fillStyle = "#00ffcc";
     c.beginPath();
     c.ellipse(0, 0, w * 0.48, h * 0.28, 0, 0, Math.PI * 2);
     c.fill();
@@ -319,7 +334,7 @@ const ALIEN_SHAPES = [
     c.beginPath();
     c.arc(0, -h * 0.18, w * 0.22, 0, Math.PI * 2);
     c.fill();
-    c.strokeStyle = "rgba(255,255,255,0.4)";
+    c.strokeStyle = "rgba(0, 255, 102, 0.5)";
     c.lineWidth = 1;
     for (let i = 0; i < 5; i++) {
       c.beginPath();
@@ -330,7 +345,7 @@ const ALIEN_SHAPES = [
 ];
 
 function drawAliens() {
-  const COLORS = ["#888888", "#aaaaaa", "#dddddd"];
+  const COLORS = ["#39ff14", "#00ff66", "#00ffcc"];
   aliens.forEach((a) => {
     if (!a.alive) return;
     ctx.save();
@@ -346,17 +361,21 @@ function drawAliens() {
 function drawBullets() {
   bullets.forEach((b) => {
     ctx.save();
-    ctx.shadowColor = "#ffffff";
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = "#ffffff";
+    const grad = ctx.createLinearGradient(b.x, b.y, b.x, b.y + BULLET_H);
+    grad.addColorStop(0, "#ffe600"); // yellow tip
+    grad.addColorStop(0.5, "#ff5500"); // orange middle
+    grad.addColorStop(1, "#ff0000"); // red base
+    ctx.fillStyle = grad;
+    ctx.shadowColor = "#ff5500";
+    ctx.shadowBlur = 12;
     ctx.fillRect(b.x, b.y, BULLET_W, BULLET_H);
     ctx.restore();
   });
   bombs.forEach((b) => {
     ctx.save();
-    ctx.shadowColor = "#888888";
+    ctx.shadowColor = "#39ff14";
     ctx.shadowBlur = 8;
-    ctx.fillStyle = "#888888";
+    ctx.fillStyle = "#39ff14";
     ctx.fillRect(b.x, b.y, BOMB_W, BOMB_H);
     ctx.restore();
   });
@@ -382,7 +401,7 @@ function drawGroundLine() {
   ctx.stroke();
 }
 
-//  Update 
+//  Update
 function update(now) {
   // stars parallax
   stars.forEach((s) => {
@@ -426,7 +445,9 @@ function update(now) {
   aliens.forEach((a) => {
     if (!a.alive) return;
     a.x += a.vx;
-    if (a.x + a.w >= W() || a.x <= 0) hitEdge = true;
+    if ((a.x <= 0 && a.vx < 0) || (a.x + a.w >= W() && a.vx > 0)) {
+      hitEdge = true;
+    }
   });
   if (hitEdge) {
     aliens.forEach((a) => {
@@ -540,7 +561,7 @@ function update(now) {
   }
 }
 
-//  Game loop 
+//  Game loop
 function loop(now) {
   if (!running) return;
   if (!paused) {
@@ -584,7 +605,7 @@ function endGame() {
   document.getElementById("overlayTitle").textContent =
     lives <= 0 ? "GAME OVER" : "MENANG!";
   document.getElementById("overlayTitle").style.color =
-    lives <= 0 ? "#888888" : "#ffffff";
+    lives <= 0 ? "#ff3333" : "#ffffff";
   document.getElementById("overlayTitle").style.textShadow =
     lives <= 0 ? "0 0 20px #888888" : "0 0 20px #ffffff";
   document.getElementById("overlayMsg").textContent =
@@ -595,7 +616,7 @@ function endGame() {
   ov.classList.remove("hidden");
 }
 
-//  Input 
+//  Input
 document.addEventListener("keydown", (e) => {
   keys[e.key] = true;
   if (e.key === " ") e.preventDefault();
@@ -650,7 +671,7 @@ Object.keys(touchMap).forEach((id) => {
   el.addEventListener("mouseup", () => touchRelease[id]());
 });
 
-//  Start button 
+//  Start button
 document.getElementById("startBtn").addEventListener("click", () => {
   initAudio();
   document.getElementById("overlay").classList.add("hidden");
