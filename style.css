@@ -158,7 +158,8 @@ canvas {
 @keyframes pulse {
   from {
     transform: scale(1);
-  } to {
+  }
+  to {
     transform: scale(1.15);
   }
 }
@@ -212,6 +213,7 @@ canvas {
 @media (max-width: 600px) or (pointer: coarse) {
   #touch-controls {
     display: flex;
+    gap: 32px;
   }
 }
 .t-btn {
@@ -279,7 +281,8 @@ canvas {
   left: -100px;
   z-index: 999; /* overlay has z-index 10, this puts the ship flying on top of the menu! */
   pointer-events: none;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 4px rgba(218, 78, 27, 0.8));
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7))
+    drop-shadow(0 0 4px rgba(218, 78, 27, 0.8));
   animation: fly-across 4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
 }
 
@@ -317,9 +320,15 @@ canvas {
   animation: line-sweep 0.4s infinite linear;
 }
 
-.trail-line.line1 { animation-delay: 0s; }
-.trail-line.line2 { animation-delay: 0.15s; }
-.trail-line.line3 { animation-delay: 0.08s; }
+.trail-line.line1 {
+  animation-delay: 0s;
+}
+.trail-line.line2 {
+  animation-delay: 0.15s;
+}
+.trail-line.line3 {
+  animation-delay: 0.08s;
+}
 
 @keyframes line-sweep {
   0% {
