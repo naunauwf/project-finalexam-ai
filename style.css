@@ -213,9 +213,10 @@ canvas {
 @media (max-width: 600px) or (pointer: coarse) {
   #touch-controls {
     display: flex;
-    gap: 32px;
+    gap: 3.5rem;
   }
 }
+
 .t-btn {
   width: 64px;
   height: 48px;
