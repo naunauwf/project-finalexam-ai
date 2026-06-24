@@ -193,7 +193,7 @@ class NeuralNetwork {
     };
   }
 
-  // Update gradien inti (REINFORCE): δ = reward × (1[a=i] − p[i])
+  // Update gradien inti (REINFORCE) = reward × (1[a=i] − p[i])
   _applyGradient(inputs, h1, h2, probs, actionIdx, reward) {
     const lr = this.lr;
     // Clip reward agar tidak ada satu sinyal pun yang terlalu mendominasi
